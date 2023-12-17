@@ -3,9 +3,12 @@
         <title>Users</title>
     </Head>
   <div class="flex justify-between mb-6">
-    <h1 class="text-3xl">
-      Users
-    </h1>
+    <div class="flex items-center">
+        <h1 class="text-3xl">
+            Users
+        </h1>
+        <Link v-if="can.createUser" href="/users/create" class="text-blue-500 text-sm ml-2">New User</Link>
+    </div>
     <input v-model="search" type="text" placeholder="Search..." class="border px-2 rounded-lg" />
   </div>
 
@@ -26,7 +29,7 @@
                                     </div>
                                 </td>
 
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <td v-if="user.can.edit" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <Link :href="'/users/' + user.id + '/edit'" class="text-indigo-600 hover:text-indigo-900">
                                         Edit
                                     </Link>
@@ -44,20 +47,22 @@
 </template>
 
 <script setup>
-import Pagination from "../Shared/Pagination.vue";
+import Pagination from "../../Shared/Pagination.vue";
 import {ref, watch} from "vue";
 import {router} from "@inertiajs/vue3";
+import debounce from "lodash/debounce";
 
 let props = defineProps({
     users: Object,
-    filters: Object
+    filters: Object,
+    can: Object
 });
 
 let search = ref(props.filters.search);
-watch(search, value => {
+watch(search, debounce(function (value) {
     router.get('/users', { search: value }, {
         preserveState: true,
         replace: true
     });
-})
+}, 300));
 </script>
